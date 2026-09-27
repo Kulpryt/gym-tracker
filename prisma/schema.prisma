@@ -1,0 +1,94 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("POSTGRES_PRISMA_URL")
+  directUrl = env("POSTGRES_URL_NON_POOLING")
+}
+
+model Exercise {
+  id                String       @id
+  name              String
+  category          String
+  bodyPart          String
+  equipment         String
+  target            String
+  muscleGroup       String
+  secondaryMuscles  String[]
+  instructions      String
+  instructionSteps  String[]
+  image             String
+  gifUrl            String
+  createdAt         DateTime     @default(now())
+  sets              WorkoutSet[]
+
+  @@index([category])
+  @@index([equipment])
+  @@index([target])
+}
+
+model WorkoutSession {
+  id        String       @id @default(cuid())
+  name      String
+  date      DateTime     @default(now())
+  notes     String?
+  createdAt DateTime     @default(now())
+  sets      WorkoutSet[]
+}
+
+model WorkoutSet {
+  id          String         @id @default(cuid())
+  session     WorkoutSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  sessionId   String
+  exercise    Exercise       @relation(fields: [exerciseId], references: [id])
+  exerciseId  String
+  setNumber   Int
+  weightKg    Float?
+  reps        Int?
+  rpe         Float?
+  notes       String?
+  completedAt DateTime       @default(now())
+
+  @@index([sessionId])
+  @@index([exerciseId])
+}
+
+model FoodProduct {
+  barcode       String         @id
+  name          String
+  brand         String?
+  imageUrl      String?
+  kcalPer100    Float
+  proteinPer100 Float
+  carbsPer100   Float
+  fatPer100     Float
+  updatedAt     DateTime       @updatedAt
+  logs          FoodLogEntry[]
+}
+
+model FoodLogEntry {
+  id         String       @id @default(cuid())
+  date       DateTime     @default(now())
+  mealType   String
+  product    FoodProduct? @relation(fields: [barcode], references: [barcode])
+  barcode    String?
+  customName String?
+  quantityG  Float
+  kcal       Float
+  protein    Float
+  carbs      Float
+  fat        Float
+  createdAt  DateTime     @default(now())
+
+  @@index([date])
+}
+
+model MacroGoal {
+  id      String @id @default("default")
+  kcal    Float  @default(2200)
+  protein Float  @default(150)
+  carbs   Float  @default(220)
+  fat     Float  @default(70)
+}
