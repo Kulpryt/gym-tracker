@@ -12,6 +12,7 @@ export default function BarcodeScanner({
 
   useEffect(() => {
     let scanner: import("html5-qrcode").Html5Qrcode | null = null;
+    let isStarted = false;
 
     (async () => {
       try {
@@ -29,6 +30,7 @@ export default function BarcodeScanner({
             // erreur de lecture par frame : on ignore, c'est normal
           }
         );
+        isStarted = true;
       } catch (e) {
         setError("Impossible d'accéder à la caméra. Vérifie les permissions ou utilise la saisie manuelle.");
       }
@@ -36,7 +38,15 @@ export default function BarcodeScanner({
 
     return () => {
       if (scanner) {
-        scanner.stop().then(() => scanner!.clear()).catch(() => {});
+        if (isStarted) {
+          scanner.stop().then(() => scanner!.clear()).catch(() => {});
+        } else {
+          try {
+            scanner.clear();
+          } catch {
+            // ignore cleanup errors if not started
+          }
+        }
       }
     };
   }, [onDetected]);
