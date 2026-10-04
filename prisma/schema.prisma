@@ -85,9 +85,16 @@ model FoodLogEntry {
 }
 
 model MacroGoal {
-  id      String @id @default("default")
-  kcal    Float  @default(2200)
-  protein Float  @default(150)
-  carbs   Float  @default(220)
-  fat     Float  @default(70)
+  id            String @id @default("default")
+  kcal          Float  @default(2200)
+  protein       Float  @default(150)
+  carbs         Float  @default(220)
+  fat           Float  @default(70)
+  currentWeight Float  @default(75)
+  targetWeight  Float  @default(75)
+  goalType      String @default("maintien")
+  height        Float  @default(175)
+  age           Int    @default(25)
+  gender        String @default("male")
+  activityLevel Float  @default(1.375)
 }
