@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState, useCallback } from "react";
 import Image from "next/image";
+import { translateCategory, translateEquipment, translateTarget } from "@/lib/translations";
 
 interface Exercise {
   id: string;
@@ -9,6 +10,7 @@ interface Exercise {
   equipment: string;
   target: string;
   image: string;
+  gifUrl: string;
   instructions: string;
 }
 
@@ -18,6 +20,7 @@ export default function ExercisesPage() {
   const [category, setCategory] = useState("");
   const [selected, setSelected] = useState<Exercise | null>(null);
   const [loading, setLoading] = useState(false);
+  const [showGif, setShowGif] = useState(true);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -55,7 +58,7 @@ export default function ExercisesPage() {
         >
           <option value="">Toutes catégories</option>
           {categories.map((c) => (
-            <option key={c} value={c}>{c}</option>
+            <option key={c} value={c}>{translateCategory(c)}</option>
           ))}
         </select>
       </div>
@@ -66,14 +69,14 @@ export default function ExercisesPage() {
         {exercises.map((ex) => (
           <button
             key={ex.id}
-            onClick={() => setSelected(ex)}
+            onClick={() => { setSelected(ex); setShowGif(true); }}
             className="card p-2 text-left"
           >
             <div className="relative w-full aspect-square rounded-lg overflow-hidden bg-black/20 mb-2">
-              <Image src={ex.image} alt={ex.name} fill sizes="180px" className="object-cover" />
+              <Image src={ex.image} alt={ex.name} fill sizes="180px" loading="lazy" className="object-cover" />
             </div>
             <p className="text-sm font-medium leading-tight capitalize">{ex.name}</p>
-            <p className="text-xs text-white/40 capitalize">{ex.equipment}</p>
+            <p className="text-xs text-white/40 capitalize">{translateEquipment(ex.equipment)}</p>
           </button>
         ))}
       </div>
@@ -93,12 +96,33 @@ export default function ExercisesPage() {
             className="card max-w-lg w-full max-h-[85vh] overflow-y-auto p-5 rounded-b-none md:rounded-b-2xl"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="relative w-full aspect-video rounded-lg overflow-hidden bg-black/20 mb-3">
-              <Image src={selected.image} alt={selected.name} fill className="object-cover" />
+            <div className="relative w-full aspect-video rounded-lg overflow-hidden bg-black/20 mb-3 flex items-center justify-center">
+              {showGif && selected.gifUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={selected.gifUrl} alt={selected.name} loading="lazy" className="object-contain w-full h-full" />
+              ) : (
+                <Image src={selected.image} alt={selected.name} fill loading="lazy" className="object-cover" />
+              )}
             </div>
+            {selected.gifUrl && (
+              <div className="flex gap-2 mb-3">
+                <button
+                  onClick={() => setShowGif(true)}
+                  className={`px-3 py-1 text-xs rounded-lg ${showGif ? "btn-accent" : "bg-white/10 text-white/70"}`}
+                >
+                  GIF animé
+                </button>
+                <button
+                  onClick={() => setShowGif(false)}
+                  className={`px-3 py-1 text-xs rounded-lg ${!showGif ? "btn-accent" : "bg-white/10 text-white/70"}`}
+                >
+                  Photo fixe
+                </button>
+              </div>
+            )}
             <h3 className="font-display text-lg font-bold capitalize mb-1">{selected.name}</h3>
             <p className="text-xs text-white/50 mb-3 capitalize">
-              {selected.category} · {selected.equipment} · cible : {selected.target}
+              {translateCategory(selected.category)} · {translateEquipment(selected.equipment)} · cible : {translateTarget(selected.target)}
             </p>
             <p className="text-sm text-white/80 whitespace-pre-line">{selected.instructions}</p>
             <button className="btn-accent mt-4 w-full" onClick={() => setSelected(null)}>Fermer</button>

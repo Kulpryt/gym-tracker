@@ -80,6 +80,12 @@ export default function ScanPage() {
 
       {product && (
         <div className="card p-4 space-y-3">
+          {product.imageUrl && (
+            <div className="relative w-20 h-20 mx-auto rounded-lg overflow-hidden bg-black/20">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={product.imageUrl} alt={product.name} loading="lazy" className="object-contain w-full h-full" />
+            </div>
+          )}
           <p className="font-medium">{product.name}</p>
           {product.brand && <p className="text-white/40 text-sm">{product.brand}</p>}
           <p className="text-xs text-white/50">

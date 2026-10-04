@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState, useCallback } from "react";
+import { translateCategory, translateEquipment } from "@/lib/translations";
 
 interface Exercise {
   id: string;
@@ -52,7 +53,9 @@ export default function ExercisePicker({
               className="w-full text-left px-4 py-3 border-b border-white/5 hover:bg-white/5"
             >
               <p className="capitalize text-sm font-medium">{ex.name}</p>
-              <p className="text-xs text-white/40 capitalize">{ex.category} · {ex.equipment}</p>
+              <p className="text-xs text-white/40 capitalize">
+                {translateCategory(ex.category)} · {translateEquipment(ex.equipment)}
+              </p>
             </button>
           ))}
         </div>
