@@ -72,9 +72,8 @@ export default function ExercisesPage() {
             onClick={() => { setSelected(ex); setShowGif(true); }}
             className="card p-2 text-left"
           >
-            <div className="relative w-full aspect-square rounded-lg overflow-hidden bg-black/20 mb-2 group">
-              <Image src={ex.image} alt={ex.name} fill sizes="180px" className="object-cover group-hover:opacity-0 transition-opacity duration-200" />
-              <Image src={ex.gifUrl} alt={ex.name} fill sizes="180px" className="object-cover opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+            <div className="relative w-full aspect-square rounded-lg overflow-hidden bg-black/20 mb-2">
+              <Image src={ex.image} alt={ex.name} fill sizes="180px" loading="lazy" className="object-cover" />
             </div>
             <p className="text-sm font-medium leading-tight capitalize">{ex.name}</p>
             <p className="text-xs text-white/40 capitalize">{translateEquipment(ex.equipment)}</p>

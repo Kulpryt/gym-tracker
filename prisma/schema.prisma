@@ -117,3 +117,14 @@ model MacroGoal {
   gender        String   @default("male")
   activityLevel Float    @default(1.375)
 }
+
+model WeightLog {
+  id        String   @id @default(cuid())
+  userId    String
+  weightKg  Float
+  date      DateTime @default(now())
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([date])
+}

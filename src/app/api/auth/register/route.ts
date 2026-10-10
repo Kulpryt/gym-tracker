@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { verifyPassword, hashPassword,setSessionCookie } from "@/lib/auth";
-import { createSessionToken } from "@/lib/jwt";
+import { hashPassword, createSessionToken, setSessionCookie } from "@/lib/auth";
+
 export async function POST(request: Request) {
   try {
     const { username, password } = await request.json();

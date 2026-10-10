@@ -7,7 +7,8 @@ const links = [
   { href: "/", label: "Accueil", icon: "🏠" },
   { href: "/workouts", label: "Séances", icon: "🏋️" },
   { href: "/exercises", label: "Exercices", icon: "📋" },
-  { href: "/nutrition", label: "Nutrition", icon: "🍎" }
+  { href: "/nutrition", label: "Nutrition", icon: "🍎" },
+  { href: "/history", label: "Historique", icon: "📈" }
 ];
 
 export default function NavBar({ username }: { username?: string }) {
@@ -24,12 +25,11 @@ export default function NavBar({ username }: { username?: string }) {
   return (
     <header className="sticky top-0 z-40 w-full border-b border-white/8 bg-bg/80 backdrop-blur-xl">
       <div className="max-w-5xl mx-auto px-4 h-14 flex items-center gap-6">
-        {/* Logo */}
         <Link href="/" className="font-display text-lg font-bold shrink-0">
           Gym<span className="text-accent">Track</span>
         </Link>
 
-        {/* Nav links — desktop */}
+        {/* Desktop nav */}
         <nav className="hidden md:flex items-center gap-1 flex-1">
           {links.map((l) => {
             const active = l.href === "/" ? pathname === "/" : pathname.startsWith(l.href);
@@ -50,7 +50,6 @@ export default function NavBar({ username }: { username?: string }) {
           })}
         </nav>
 
-        {/* User menu */}
         {username && (
           <div className="relative ml-auto">
             <button
@@ -80,15 +79,15 @@ export default function NavBar({ username }: { username?: string }) {
         )}
       </div>
 
-      {/* Nav links — mobile (barre en bas de la navbar) */}
-      <div className="md:hidden flex border-t border-white/6">
+      {/* Mobile nav */}
+      <div className="md:hidden flex border-t border-white/6 overflow-x-auto">
         {links.map((l) => {
           const active = l.href === "/" ? pathname === "/" : pathname.startsWith(l.href);
           return (
             <Link
               key={l.href}
               href={l.href}
-              className={`flex-1 flex flex-col items-center py-2 text-xs transition-colors ${
+              className={`flex-1 min-w-[60px] flex flex-col items-center py-2 text-[10px] transition-colors ${
                 active ? "text-accent font-medium" : "text-white/40"
               }`}
             >
