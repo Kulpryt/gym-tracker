@@ -9,7 +9,7 @@ export async function GET() {
   if (!user) return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
 
   const sessions = await prisma.workoutSession.findMany({
-    where: { userId: user.id },
+    where: { userId: user.userId },
     orderBy: { date: "desc" },
     include: { sets: { include: { exercise: true } } }
   });
@@ -23,7 +23,7 @@ export async function POST(req: NextRequest) {
   const body = await req.json();
   const session = await prisma.workoutSession.create({
     data: {
-      userId: user.id,
+      userId: user.userId,
       name: body.name || `Séance du ${new Date().toLocaleDateString("fr-FR")}`,
       date: body.date ? new Date(body.date) : new Date(),
       notes: body.notes ?? null
