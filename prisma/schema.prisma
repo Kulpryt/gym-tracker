@@ -7,6 +7,16 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model User {
+  id           String           @id @default(cuid())
+  username     String           @unique
+  passwordHash String
+  createdAt    DateTime         @default(now())
+  sessions     WorkoutSession[]
+  foodLogs     FoodLogEntry[]
+  macroGoal    MacroGoal?
+}
+
 model Exercise {
   id                String       @id
   name              String
@@ -30,11 +40,15 @@ model Exercise {
 
 model WorkoutSession {
   id        String       @id @default(cuid())
+  userId    String?
+  user      User?        @relation(fields: [userId], references: [id], onDelete: Cascade)
   name      String
   date      DateTime     @default(now())
   notes     String?
   createdAt DateTime     @default(now())
   sets      WorkoutSet[]
+
+  @@index([userId])
 }
 
 model WorkoutSet {
@@ -69,6 +83,8 @@ model FoodProduct {
 
 model FoodLogEntry {
   id         String       @id @default(cuid())
+  userId     String?
+  user       User?        @relation(fields: [userId], references: [id], onDelete: Cascade)
   date       DateTime     @default(now())
   mealType   String
   product    FoodProduct? @relation(fields: [barcode], references: [barcode])
@@ -82,19 +98,22 @@ model FoodLogEntry {
   createdAt  DateTime     @default(now())
 
   @@index([date])
+  @@index([userId])
 }
 
 model MacroGoal {
-  id            String @id @default("default")
-  kcal          Float  @default(2200)
-  protein       Float  @default(150)
-  carbs         Float  @default(220)
-  fat           Float  @default(70)
-  currentWeight Float  @default(75)
-  targetWeight  Float  @default(75)
-  goalType      String @default("maintien")
-  height        Float  @default(175)
-  age           Int    @default(25)
-  gender        String @default("male")
-  activityLevel Float  @default(1.375)
+  id            String   @id @default(cuid())
+  userId        String?  @unique
+  user          User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  kcal          Float    @default(2200)
+  protein       Float    @default(150)
+  carbs         Float    @default(220)
+  fat           Float    @default(70)
+  currentWeight Float    @default(75)
+  targetWeight  Float    @default(75)
+  goalType      String   @default("maintien")
+  height        Float    @default(175)
+  age           Int      @default(25)
+  gender        String   @default("male")
+  activityLevel Float    @default(1.375)
 }

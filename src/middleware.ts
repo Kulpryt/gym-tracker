@@ -1,18 +1,14 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { verifySessionToken, SESSION_COOKIE } from "./lib/jwt";
 
-export function middleware(request: NextRequest) {
-  const appPasswords = process.env.APP_PASSWORDS || process.env.APP_PASSWORD;
-  if (!appPasswords) {
-    return NextResponse.next();
-  }
-
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Allow public assets, login page, and auth api
+  // Autoriser les assets publics, la page de login, et l'api d'auth
   if (
     pathname.startsWith("/login") ||
-    pathname.startsWith("/api/auth/login") ||
+    pathname.startsWith("/api/auth") ||
     pathname.startsWith("/_next") ||
     pathname.startsWith("/favicon.ico") ||
     pathname.includes(".")
@@ -20,11 +16,16 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  const authCookie = request.cookies.get("gym_auth");
-  if (authCookie?.value === "authenticated") {
-    return NextResponse.next();
+  const sessionToken = request.cookies.get(SESSION_COOKIE)?.value;
+  
+  if (sessionToken) {
+    const payload = await verifySessionToken(sessionToken);
+    if (payload) {
+      return NextResponse.next();
+    }
   }
 
+  // Rediriger vers login si non authentifié
   const loginUrl = new URL("/login", request.url);
   return NextResponse.redirect(loginUrl);
 }
