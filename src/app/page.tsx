@@ -9,28 +9,47 @@ export default async function Dashboard() {
   const user = await getCurrentUser();
   if (!user) redirect("/login");
 
-  const [recentSessions, goal] = await Promise.all([
-    prisma.workoutSession.findMany({
-      where: { userId: user.userId },
-      orderBy: { date: "desc" },
-      take: 5,
-      include: { sets: true }
-    }),
-    prisma.macroGoal.upsert({
-      where: { userId: user.userId },
-      create: { userId: user.userId },
-      update: {}
-    })
-  ]);
+  // Déclaration en amont pour une portée globale au composant
+  let recentSessions: any[] = [];
+  let goal: any = { kcal: 2000, protein: 150, carbs: 200, fat: 70 }; // Valeur par défaut de sécurité
+
+  try {
+    const result = await Promise.all([
+      prisma.workoutSession.findMany({
+        where: { userId: user.userId },
+        orderBy: { date: "desc" },
+        take: 5,
+        include: { sets: true }
+      }),
+      prisma.macroGoal.upsert({
+        where: { userId: user.userId },
+        create: { userId: user.userId },
+        update: {}
+      })
+    ]);
+    recentSessions = result[0];
+    goal = result[1];
+  } catch {
+    // User supprimé ou FK invalide → déconnexion propre
+    const { clearSessionCookie } = await import("@/lib/auth");
+    clearSessionCookie();
+    redirect("/login");
+  }
 
   const start = new Date(); start.setHours(0, 0, 0, 0);
   const end = new Date(); end.setHours(23, 59, 59, 999);
+  
   const todayLogs = await prisma.foodLogEntry.findMany({
     where: { userId: user.userId, date: { gte: start, lte: end } }
   });
 
   const totals = todayLogs.reduce(
-    (acc, l) => ({ kcal: acc.kcal + l.kcal, protein: acc.protein + l.protein, carbs: acc.carbs + l.carbs, fat: acc.fat + l.fat }),
+    (acc, l) => ({ 
+      kcal: acc.kcal + l.kcal, 
+      protein: acc.protein + l.protein, 
+      carbs: acc.carbs + l.carbs, 
+      fat: acc.fat + l.fat 
+    }),
     { kcal: 0, protein: 0, carbs: 0, fat: 0 }
   );
 
@@ -38,7 +57,9 @@ export default async function Dashboard() {
     <div className="space-y-5">
       <div>
         <h2 className="font-display text-2xl font-bold">Bonjour, {user.username} 👋</h2>
-        <p className="text-white/40 text-sm">{new Date().toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long" })}</p>
+        <p className="text-white/40 text-sm">
+          {new Date().toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long" })}
+        </p>
       </div>
 
       {/* Macros du jour */}
