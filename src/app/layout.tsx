@@ -1,25 +1,34 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import NavBar from "@/components/NavBar";
+import { getCurrentUser } from "@/lib/auth";
 
 export const metadata: Metadata = {
-  title: "Gym Tracker",
-  description: "Suivi de séances de gym et de nutrition"
+  title: "GymTrack",
+  description: "Ton carnet d'entraînement et de nutrition",
+  manifest: "/manifest.json",
+  themeColor: "#4A6741",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "GymTrack"
+  }
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const user = await getCurrentUser();
   return (
     <html lang="fr">
-      <body className="pb-20 md:pb-0">
-        <div className="max-w-5xl mx-auto px-4">
-          <header className="flex items-center justify-between py-6">
-            <h1 className="font-display text-xl font-bold">
-              Gym<span className="text-accent">Track</span>
-            </h1>
-          </header>
-          <main>{children}</main>
+      <head>
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <link rel="apple-touch-icon" href="/icon-192.png" />
+      </head>
+      <body>
+        <NavBar username={user?.username} />
+        <div className="max-w-5xl mx-auto px-4 py-6">
+          {children}
         </div>
-        <NavBar />
       </body>
     </html>
   );

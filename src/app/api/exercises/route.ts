@@ -1,9 +1,11 @@
 export const dynamic = "force-dynamic";
-
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { seedExercisesIfEmpty } from "@/lib/seedExercises";
 
 export async function GET(req: NextRequest) {
+  await seedExercisesIfEmpty();
+
   const { searchParams } = new URL(req.url);
   const q = searchParams.get("q") ?? "";
   const category = searchParams.get("category");

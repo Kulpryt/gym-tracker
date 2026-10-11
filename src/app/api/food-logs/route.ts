@@ -2,16 +2,20 @@ export const dynamic = "force-dynamic";
 
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getCurrentUser } from "@/lib/auth";
 
 export async function GET(req: NextRequest) {
+  const user = await getCurrentUser();
+  if (!user) return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
+
   const { searchParams } = new URL(req.url);
   const dateParam = searchParams.get("date");
   const day = dateParam ? new Date(dateParam) : new Date();
-  const start = new Date(day.setHours(0, 0, 0, 0));
-  const end = new Date(day.setHours(23, 59, 59, 999));
+  const start = new Date(day); start.setHours(0, 0, 0, 0);
+  const end = new Date(day); end.setHours(23, 59, 59, 999);
 
   const logs = await prisma.foodLogEntry.findMany({
-    where: { date: { gte: start, lte: end } },
+    where: { userId: user.userId, date: { gte: start, lte: end } },
     include: { product: true },
     orderBy: { createdAt: "asc" }
   });
@@ -19,11 +23,14 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  const user = await getCurrentUser();
+  if (!user) return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
+
   const body = await req.json();
-  // body: { mealType, barcode?, customName?, quantityG, per100: {kcal,protein,carbs,fat} }
   const factor = body.quantityG / 100;
   const log = await prisma.foodLogEntry.create({
     data: {
+      userId: user.userId,
       date: body.date ? new Date(body.date) : new Date(),
       mealType: body.mealType,
       barcode: body.barcode ?? null,

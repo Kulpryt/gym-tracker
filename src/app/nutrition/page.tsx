@@ -160,7 +160,7 @@ export default function NutritionPage() {
       <div className="flex justify-between items-center">
         <h2 className="font-display text-lg font-bold">Nutrition — aujourd'hui</h2>
         <div className="flex gap-2">
-          <button onClick={() => setGoalModalOpen(true)} className="card px-3 py-1.5 text-xs">⚙️ Objectifs</button>
+          <Link href="/nutrition/goals" className="card px-3 py-1.5 text-xs">⚙️ Objectifs</Link>
           <Link href="/nutrition/scan" className="btn-accent">📷 Scanner</Link>
         </div>
       </div>
